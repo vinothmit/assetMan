@@ -1,0 +1,23 @@
+<resources>
+    <string name="app_name">Asset Tracking</string>
+
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
+    <string name="username">Username</string>
+    <string name="password">Password</string>
+    <string name="login">Login</string>
+    <string name="assetTracking">Asset Tracking</string>
+    <string name="title_activity_asset_tracking">Asset Tracking</string>
+    <string name="takepic">Take Picture</string>
+    <string name="confirm">Confirm</string>
+    <string name="comment">Comments</string>
+    <string name="getlocation">Get Location</string>
+    <string name="viewallasset">View All</string>
+    <string name="assetName">Asset Name</string>
+    <string name="title_activity_all_asset_tracking">All Assets</string>
+    <string name="assetscan">Scan Asset</string>
+    <string name="searchAsset">Search Asset</string>
+    <string name="title_activity_searcj">SearchActivity</string>
+    <string name="app_lable">Serach Asset</string>
+    <string name="searchHint">Search by Asset Name</string>
+</resources>

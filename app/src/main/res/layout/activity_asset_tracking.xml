@@ -1,0 +1,178 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@android:color/white"
+    tools:context="com.htfs.assettracking.AssetTracking">
+    <ScrollView
+        android:id="@+id/scrollView"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/linearLayout2"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:padding="5dp"
+        android:scrollbars="none">
+
+        <RelativeLayout
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent">
+
+            <EditText
+                android:id="@+id/astCode"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_alignBottom="@+id/astscanCode"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true"
+                android:layout_alignTop="@+id/astscanCode"
+                android:layout_toLeftOf="@+id/astscanCode"
+                android:layout_toStartOf="@+id/astscanCode"
+                android:background="@drawable/backtext"
+                android:hint="Asset Code"
+                android:paddingLeft="10dp"
+                android:textColor="@color/darkblue"
+                android:textColorHint="#808080" />
+
+            <ImageButton
+                android:id="@+id/astscanCode"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentRight="true"
+                android:src="@drawable/qrscanimg"
+                android:text="@string/assetscan" />
+
+            <EditText
+                android:id="@+id/assetregUsername"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_alignEnd="@+id/astscanCode"
+                android:layout_alignRight="@+id/astscanCode"
+                android:layout_below="@+id/astname"
+                android:layout_marginTop="13dp"
+                android:background="@drawable/backtext"
+                android:hint="Username"
+                android:paddingLeft="10dp"
+                android:textColor="@color/darkblue"
+                android:textColorHint="#808080" />
+
+            <EditText
+                android:id="@+id/asttakendate"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true"
+                android:layout_below="@+id/assetregUsername"
+                android:layout_marginTop="13dp"
+                android:layout_toLeftOf="@+id/showCal"
+                android:layout_toStartOf="@+id/showCal"
+                android:background="@drawable/backtext"
+                android:ems="10"
+                android:hint="11/11/2015"
+                android:inputType="date"
+                android:paddingLeft="10dp"
+                android:textColor="@color/darkblue"
+                android:textColorHint="#808080" />
+
+            <CheckBox
+                android:id="@+id/astgetLoction"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true"
+                android:layout_below="@+id/asttakendate"
+                android:layout_marginTop="10dp"
+                android:checked="true"
+                android:text="@string/getlocation"
+                android:textColor="@color/darkblue" />
+
+            <EditText
+                android:id="@+id/astcomment"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/astgetLoction"
+                android:layout_marginTop="10dp"
+                android:background="@drawable/backtext"
+                android:gravity="top|left"
+                android:hint="@string/comment"
+                android:inputType="textMultiLine"
+                android:lines="8"
+                android:maxLines="10"
+                android:minLines="6"
+                android:paddingLeft="10dp"
+                android:paddingTop="5dp"
+                android:scrollbars="vertical"
+                android:textColor="@color/darkblue"
+                android:textColorHint="#808080" />
+
+            <ImageView
+                android:id="@+id/astviewpic"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/astcomment"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="5dp" />
+
+
+            <EditText
+                android:id="@+id/astname"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_alignEnd="@+id/astscanCode"
+                android:layout_alignRight="@+id/astscanCode"
+                android:layout_below="@+id/astCode"
+                android:layout_marginTop="13dp"
+                android:background="@drawable/backtext"
+                android:hint="@string/assetName"
+                android:paddingLeft="10dp"
+                android:textColor="@color/darkblue"
+                android:textColorHint="#808080" />
+
+            <ImageButton
+                android:id="@+id/showCal"
+                android:layout_width="50dp"
+                android:layout_height="wrap_content"
+                android:layout_above="@+id/astgetLoction"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentRight="true"
+                android:layout_alignTop="@+id/asttakendate"
+                android:background="@color/baseColor"
+                android:contentDescription="Calender"
+                android:src="@drawable/calendar_64" />
+
+        </RelativeLayout>
+    </ScrollView>
+
+    <LinearLayout
+        android:id="@+id/linearLayout2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/astretakepic"
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="#ccc"
+            android:elevation="8dp"
+            android:text="@string/takepic"
+            android:textColor="@color/darkblue"
+            android:translationZ="8dp" />
+
+        <Button
+            android:id="@+id/astconfirm"
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="@color/baseColor"
+            android:elevation="8dp"
+            android:text="@string/confirm"
+            android:textColor="#ffffff"
+            android:translationZ="8dp" />
+    </LinearLayout>
+</RelativeLayout>

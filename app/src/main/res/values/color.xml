@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="baseColor">#ffee6a24</color>
+    <color name="baseColorDark">#FFE85600</color>
+    <color name="accentColor">#ffe87339</color>
+
+    <color name="laybackgroud">#cbe6e7e9</color>
+
+    <color name="darkblue">#000032</color>
+</resources>
