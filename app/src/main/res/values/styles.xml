@@ -23,4 +23,8 @@
         <item name="android:textColor">@android:color/white</item>
     </style>
 
+    <style name="Button">
+        <item name="android:textColor">@android:color/white</item>
+        <item name="android:background">@drawable/primary_round</item>
+    </style>
 </resources>

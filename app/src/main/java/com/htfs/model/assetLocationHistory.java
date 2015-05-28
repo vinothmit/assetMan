@@ -5,7 +5,7 @@ import java.io.Serializable;
 /**
  * Created by Vinoth on 26-05-2015.
  */
-public class assetLocationHistory implements Serializable {
+public class AssetLocationHistory implements Serializable {
 
     private String assetID;
     private String assetUser;
@@ -18,7 +18,7 @@ public class assetLocationHistory implements Serializable {
 
     @Override
     public String toString() {
-        return "assetLocationHistory{" +
+        return "AssetLocationHistory{" +
                 "assetID='" + assetID + '\'' +
                 ", assetUser='" + assetUser + '\'' +
                 ", assetDesc='" + assetDesc + '\'' +

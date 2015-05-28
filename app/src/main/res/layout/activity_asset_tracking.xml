@@ -12,7 +12,8 @@
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
         android:padding="5dp"
-        android:scrollbars="none">
+        android:scrollbars="none"
+        android:layout_alignParentTop="true">
 
         <RelativeLayout
             android:layout_width="fill_parent"
@@ -54,6 +55,7 @@
                 android:background="@drawable/backtext"
                 android:hint="Username"
                 android:paddingLeft="10dp"
+                android:inputType="textFilter"
                 android:textColor="@color/darkblue"
                 android:textColorHint="#808080" />
 
@@ -69,7 +71,7 @@
                 android:layout_toStartOf="@+id/showCal"
                 android:background="@drawable/backtext"
                 android:ems="10"
-                android:hint="11/11/2015"
+                android:hint="dd-mm-yyyy"
                 android:inputType="date"
                 android:paddingLeft="10dp"
                 android:textColor="@color/darkblue"

@@ -10,4 +10,10 @@
         app:showAsAction="always"
         android:showAsAction="always"
         />
+    <item
+        android:id="@+id/clearhistory"
+        android:orderInCategory="101"
+        android:title="Clear history"
+        app:showAsAction="never"
+        />
 </menu>
