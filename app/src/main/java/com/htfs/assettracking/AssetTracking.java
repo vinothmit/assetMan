@@ -105,7 +105,10 @@ public class AssetTracking extends Activity implements TextWatcher, LocationList
         filter.addCategory(Intent.CATEGORY_DEFAULT);
         responseReceiver = new ResponseReceiver();
         registerReceiver(responseReceiver, filter);
-
+        if (getIntent().getBooleanExtra("EXIT", false)) {
+            finish();
+            return;
+        }
         assetSubmitBtn = (Button) findViewById(R.id.astconfirm);
         assetSubmitBtn.setOnClickListener(confirmAsset);
 
@@ -505,12 +508,11 @@ public class AssetTracking extends Activity implements TextWatcher, LocationList
                 progressDialog.dismiss();
                 progressDialog = null;
                 Log.d(TAG, String.valueOf(aVoid));
-                if(aVoid == 200){
-                    DialogBoxDisplay.msgBox(AssetTracking.this,"Asset successfully submitted");
+                if (aVoid == 200) {
+                    DialogBoxDisplay.msgBox(AssetTracking.this, "Asset successfully submitted");
                     clearAll();
-                }
-                else {
-                    DialogBoxDisplay.msgBox(AssetTracking.this,"Image wasn't uploaded");
+                } else {
+                    DialogBoxDisplay.msgBox(AssetTracking.this, "Image wasn't uploaded");
                 }
             }
 
@@ -575,8 +577,6 @@ public class AssetTracking extends Activity implements TextWatcher, LocationList
             }
         }.execute();
     }
-
-
 
 
     @Override
@@ -645,7 +645,10 @@ public class AssetTracking extends Activity implements TextWatcher, LocationList
     @Override
     public void onBackPressed() {
         super.onBackPressed();
-        this.finish();
+        Intent intent = new Intent(this, AssetTracking.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        intent.putExtra("EXIT", true);
+        startActivity(intent);
     }
 
     @Override
@@ -659,16 +662,16 @@ public class AssetTracking extends Activity implements TextWatcher, LocationList
             startActivity(allassets);
             return true;
         }
-        if(id == R.id.logout){
-            if(sp==null)
-                sp= getSharedPreferences(Login.USER_SP,MODE_PRIVATE);
+        if (id == R.id.logout) {
+            if (sp == null)
+                sp = getSharedPreferences(Login.USER_SP, MODE_PRIVATE);
             SharedPreferences.Editor edit = sp.edit();
             edit.clear();
             edit.commit();
-            Intent i = new Intent(this,Login.class);
+            Intent i = new Intent(this, Login.class);
             startActivity(i);
             this.finish();
-            return  true;
+            return true;
         }
         return super.onOptionsItemSelected(item);
     }
@@ -717,6 +720,7 @@ public class AssetTracking extends Activity implements TextWatcher, LocationList
             Log.d("ADDRESS FROM INTENT", intent.getStringExtra(GetaddressService.ADDR));
         }
     }
+
     private void clearAll() {
         assetCodeTx.setText("");
         assetName.setText("");

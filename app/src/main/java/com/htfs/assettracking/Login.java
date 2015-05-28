@@ -85,6 +85,7 @@ public class Login extends Activity {
             if (sharedPreferences.contains(USEREMAIL)) {
                 Intent i = new Intent(Login.this, AssetTracking.class);
                 startActivity(i);
+                finish();
             }
         }
     }
@@ -97,6 +98,7 @@ public class Login extends Activity {
         editor.commit();
         Intent i = new Intent(Login.this, AssetTracking.class);
         startActivity(i);
+        this.finish();
     }
 
     class AuthendicatedUser extends AsyncTask<String, Void, String> {
