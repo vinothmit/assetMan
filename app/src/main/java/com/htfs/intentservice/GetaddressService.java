@@ -29,7 +29,7 @@ public class GetaddressService extends IntentService {
     protected void onHandleIntent(Intent intent) {
         double _astLat = intent.getDoubleExtra(PRAM_LAT, 0.0);
         double _astLong = intent.getDoubleExtra(PRAM_LONG, 0.0);
-        Log.d("Addresss Intent values",String.valueOf(_astLat)+""+String.valueOf(_astLong));
+        Log.d("Addresss Intent values", String.valueOf(_astLat) + "" + String.valueOf(_astLong));
         String addr = getAddressforLocation(_astLat, _astLong);
         Log.d("Address Intent Answer", addr);
 
@@ -45,7 +45,10 @@ public class GetaddressService extends IntentService {
         try {
             List<Address> listAddresses = geoCoder.getFromLocation(_latitute, _longitude, 1);
             if (null != listAddresses && listAddresses.size() > 0) {
-                locationAddress = listAddresses.get(0).getAddressLine(0);
+                Log.d("Address List", listAddresses.toString());
+                locationAddress = listAddresses.get(0).getAddressLine(0) + " " +
+                        listAddresses.get(0).getAddressLine(1) + " " +
+                        listAddresses.get(0).getCountryName();
                 return locationAddress;
             }
         } catch (IOException e) {

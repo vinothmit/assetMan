@@ -4,13 +4,10 @@ import android.app.Activity;
 import android.app.SearchManager;
 import android.content.Intent;
 import android.provider.SearchRecentSuggestions;
-import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.widget.Toast;
 
-import com.htfs.ContentProviders.SearchSuggestionContent;
+import com.htfs.contentproviders.SearchSuggestionContent;
 
 
 public class SearchActivity extends Activity {

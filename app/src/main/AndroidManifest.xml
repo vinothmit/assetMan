@@ -18,8 +18,8 @@
         <service android:name="com.htfs.intentservice.GetaddressService" />
 
         <provider
-            android:name="com.htfs.ContentProviders.SearchSuggestionContent"
-            android:authorities="com.htfs.ContentProviders.SearchSuggestionContent" />
+            android:name="com.htfs.contentproviders.SearchSuggestionContent"
+            android:authorities="com.htfs.contentproviders.SearchSuggestionContent" />
 
         <activity
             android:name=".Login"

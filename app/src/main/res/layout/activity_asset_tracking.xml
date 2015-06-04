@@ -35,14 +35,15 @@
                 android:textColor="@color/darkblue"
                 android:textColorHint="#808080" />
 
-            <ImageButton
+            <Button
                 android:id="@+id/astscanCode"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                 android:textColor="@android:color/white"
+                android:background="@color/baseColor"
                 android:layout_alignParentEnd="true"
                 android:layout_alignParentRight="true"
-                android:src="@drawable/qrscanimg"
-                android:text="@string/assetscan" />
+                android:text="@string/scan" />
 
             <EditText
                 android:id="@+id/assetregUsername"

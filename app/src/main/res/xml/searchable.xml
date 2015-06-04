@@ -2,7 +2,7 @@
 <searchable xmlns:android="http://schemas.android.com/apk/res/android"
     android:hint="@string/searchHint"
     android:label="@string/app_lable"
-    android:searchSuggestAuthority="com.htfs.ContentProviders.SearchSuggestionContent"
+    android:searchSuggestAuthority="com.htfs.contentproviders.SearchSuggestionContent"
     android:searchSuggestSelection=" ?">
 
 </searchable>

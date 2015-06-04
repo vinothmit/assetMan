@@ -7,11 +7,9 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.ListView;
-import android.widget.Toolbar;
 
-import com.htfs.Adapters.AssetRecyclerAdapter;
-import com.htfs.ContentProviders.SearchSuggestionContent;
+import com.htfs.adapters.AssetRecyclerAdapter;
+import com.htfs.contentproviders.SearchSuggestionContent;
 import com.htfs.model.AssetLocationHistory;
 
 import java.util.ArrayList;

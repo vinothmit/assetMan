@@ -16,6 +16,7 @@
     <string name="assetName">Asset Name</string>
     <string name="title_activity_all_asset_tracking">All Assets</string>
     <string name="assetscan">Scan Asset</string>
+    <string name="scan">Scan</string>
     <string name="searchAsset">Search Asset</string>
     <string name="title_activity_searcj">Search Asset</string>
     <string name="app_lable">Serach Asset</string>

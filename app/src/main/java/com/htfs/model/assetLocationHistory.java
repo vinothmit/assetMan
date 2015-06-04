@@ -11,10 +11,9 @@ public class AssetLocationHistory implements Serializable {
     private String assetUser;
     private String assetDesc;
     private String assetDateTime;
-    private String assetLongitude;
-    private String assetLatitude;
+    private String gps;
     private String assetLastAddress;
-    private String assetCommnet;
+    private String assetComment;
 
     @Override
     public String toString() {
@@ -23,10 +22,9 @@ public class AssetLocationHistory implements Serializable {
                 ", assetUser='" + assetUser + '\'' +
                 ", assetDesc='" + assetDesc + '\'' +
                 ", assetDateTime='" + assetDateTime + '\'' +
-                ", assetLongitude='" + assetLongitude + '\'' +
-                ", assetLatitude='" + assetLatitude + '\'' +
+                ", gps='" + gps + '\'' +
                 ", assetLastAddress='" + assetLastAddress + '\'' +
-                ", assetCommnet='" + assetCommnet + '\'' +
+                ", assetComment='" + assetComment + '\'' +
                 '}';
     }
 
@@ -62,20 +60,12 @@ public class AssetLocationHistory implements Serializable {
         this.assetDateTime = assetDateTime;
     }
 
-    public String getAssetLongitude() {
-        return assetLongitude;
+    public String getGps() {
+        return gps;
     }
 
-    public void setAssetLongitude(String assetLongitude) {
-        this.assetLongitude = assetLongitude;
-    }
-
-    public String getAssetLatitude() {
-        return assetLatitude;
-    }
-
-    public void setAssetLatitude(String assetLatitude) {
-        this.assetLatitude = assetLatitude;
+    public void setGps(String gps) {
+        this.gps = gps;
     }
 
     public String getAssetLastAddress() {
@@ -86,11 +76,11 @@ public class AssetLocationHistory implements Serializable {
         this.assetLastAddress = assetLastAddress;
     }
 
-    public String getAssetCommnet() {
-        return assetCommnet;
+    public String getAssetComment() {
+        return assetComment;
     }
 
-    public void setAssetCommnet(String assetCommnet) {
-        this.assetCommnet = assetCommnet;
+    public void setAssetComment(String assetComment) {
+        this.assetComment = assetComment;
     }
 }
