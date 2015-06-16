@@ -10,8 +10,13 @@ import android.util.Log;
  */
 public class CheckInternetConnection {
 
-
-    public static final boolean checkConnection(Context context) {
+    /**
+     * To check whether the device have internet connectivity
+     *
+     * @param context Called activity context
+     * @return boolean
+     */
+    public static boolean checkConnection(Context context) {
         ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo ni = cm.getActiveNetworkInfo();
         if (ni == null) {

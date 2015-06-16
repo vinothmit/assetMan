@@ -28,6 +28,7 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -37,6 +38,7 @@ import com.google.android.gms.location.LocationServices;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 import com.htfs.intentservice.GetaddressService;
+import com.htfs.utilpackage.CheckDataSourceConnection;
 import com.htfs.utilpackage.CheckInternetConnection;
 import com.htfs.utilpackage.Checkloactionprovider;
 import com.htfs.utilpackage.DialogBoxDisplay;
@@ -61,49 +63,99 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
 
-
+/**
+ * AssetTracking Activity
+ * <p>
+ * User scan assert, reads the current location,
+ * take picture of the asset and upload to server
+ * </p>
+ */
 public class AssetTracking extends Activity implements TextWatcher, LocationListener, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
 
-    private final String POSTDATA_URL = "http://192.168.1.250:8080/CyberFreight/Services/AssetLocationHistory/SetAssetLocation";
-    private final String POST_IMG = "http://192.168.1.250:8080/CyberFreight/Upload";
-    private final String POST_ASSETDET = "http://192.168.1.250:8080/CyberFreight/Services/AssetLocationHistory/GetAssetDetails/";
+    //<editor-fold desc="Variables">
+    /**
+     * UI objects
+     */
     private Button assetSubmitBtn, getPictureBtn, scanBarcode;
     private CheckBox needLocationCB;
     private EditText assetCodeTx, assetuserTx, assetdateTx, assetCommnetTx, assetName;
     private ImageView assetpic;
     private ProgressDialog progressDialog;
-    private SharedPreferences sp;
-    private String locationAddress = "";
+    private Bitmap astImage;
+    private Typeface typeface;
+    /**
+     * Network variables
+     */
+    private String POSTDATA_URL = "";
+    private String POST_IMG = "";
+    private String POST_ASSETDET = "";
+    private GoogleApiClient mGoogleApiClient;
+    private LocationRequest mLocationRequest;
+    /**
+     * Activity variables
+     */
+    private SharedPreferences sp, sharedPreferencesDB;
     private static final String TAG = "AT1";
     private static final int GET_IMG_REQ = 100;
+    /**
+     * Task variables
+     */
+    private String locationAddress = "";
     private double assetlatitute, assetlogitude;
-    private Bitmap astImage;
     private String currentpicname;
     private File fimg, temppath;
     private boolean isassetpresent = false;
     private SimpleDateFormat sd;
+    private String baseAddress;
 
-    private GoogleApiClient mGoogleApiClient;
-    private LocationRequest mLocationRequest;
-    private Typeface typeface;
-
+    /**
+     * Receiver object
+     * <p>Receive the message from Broadcast</p>
+     */
     private ResponseReceiver responseReceiver;
+    //</editor-fold>
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_asset_tracking);
+        /**
+         * Check for configuration
+         * else
+         * Prompt user for configuration
+         */
+        sharedPreferencesDB = getSharedPreferences(Login.DB_CONFIG, MODE_PRIVATE);
+        if (sharedPreferencesDB.contains(Login.DBSTRING)) {
+            baseAddress = sharedPreferencesDB.getString(Login.DBSTRING, null);
+            POSTDATA_URL = baseAddress + "AssetManagement/Services/AssetLocationHistory/SetAssetLocation";
+            POST_IMG = baseAddress + "AssetManagement/Services/AssetLocationHistory/Upload";
+            POST_ASSETDET = baseAddress + "AssetManagement/Services/AssetLocationHistory/GetAssetDetails/";
+        } else {
+            Toast.makeText(this, "No Configuration Found", Toast.LENGTH_LONG).show();
+            Intent i = new Intent(this, Configuration.class);
+            startActivity(i);
+            finish();
+        }
 
+        //Building google api client
         buildGoogleApiClient();
 
+        //Initializing receiver class
         IntentFilter filter = new IntentFilter(ResponseReceiver.ACTION_RESP);
         filter.addCategory(Intent.CATEGORY_DEFAULT);
         responseReceiver = new ResponseReceiver();
         registerReceiver(responseReceiver, filter);
+
+        /**
+         * Exit from app when user press back
+         * <p>Optional</p>
+         * @see this.onBackPressed()
+         */
         if (getIntent().getBooleanExtra("EXIT", false)) {
             finish();
             return;
         }
+
         typeface = Typeface.createFromAsset(getAssets(), "Dolce Vita.ttf");
         assetSubmitBtn = (Button) findViewById(R.id.astconfirm);
         assetSubmitBtn.setOnClickListener(confirmAsset);
@@ -131,7 +183,6 @@ public class AssetTracking extends Activity implements TextWatcher, LocationList
         assetdateTx.setEnabled(false);
         sd = new SimpleDateFormat("yyyy-MM-dd");
         assetdateTx.setText(sd.format(Calendar.getInstance().getTime()));
-//        Log.d(TAG, String.valueOf(TimeZone.getDefault()));
         assetCommnetTx = (EditText) findViewById(R.id.astcomment);
         assetpic = (ImageView) findViewById(R.id.astviewpic);
 
@@ -139,7 +190,11 @@ public class AssetTracking extends Activity implements TextWatcher, LocationList
         sp = getSharedPreferences(Login.USER_SP, MODE_PRIVATE);
     }
 
-    protected synchronized void buildGoogleApiClient() {
+    /**
+     * Build api client to receive location update and address of location
+     * Fused location provider
+     */
+    private synchronized void buildGoogleApiClient() {
         mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .addConnectionCallbacks(this)
                 .addOnConnectionFailedListener(this)
@@ -147,7 +202,13 @@ public class AssetTracking extends Activity implements TextWatcher, LocationList
                 .build();
     }
 
-    public static final void displaySnackbar(final Context context, final Activity activity) {
+    /**
+     * To display snackbar (like Toast)
+     *
+     * @param context  Activity context
+     * @param activity activity
+     */
+    private void displaySnackbar(final Context context, final Activity activity) {
         Snackbar.with(context)
                 .text("Check Internet Connection")
                 .duration(Snackbar.SnackbarDuration.LENGTH_INDEFINITE)
@@ -171,13 +232,17 @@ public class AssetTracking extends Activity implements TextWatcher, LocationList
         if (!CheckInternetConnection.checkConnection(getApplicationContext())) {
             displaySnackbar(getApplicationContext(), this);
         }
+        // Connect to build google API Client
         mGoogleApiClient.connect();
+
         if (sp.contains(Login.USERNAME)) {
             Log.d(TAG, "contains");
             assetuserTx.setText(sp.getString("USERNAME", ""));
         }
+
         if (!Checkloactionprovider.checklocationService(this))
             DialogBoxDisplay.showGps(this);
+
         Log.d(TAG, String.valueOf(mGoogleApiClient.isConnected()));
         Log.d(TAG, "ON Resume:" + "|| asset latitude:" + assetlatitute + " asset longitude:" + assetlogitude);
     }
@@ -190,20 +255,28 @@ public class AssetTracking extends Activity implements TextWatcher, LocationList
     @Override
     protected void onPause() {
         super.onPause();
+        //disconnect Google api Client onPause
         if (mGoogleApiClient.isConnected())
             stopLocationUpdates();
     }
 
+
+    //<editor-fold desc="Scan and Picture Task">
+    /**
+     * Take picture from device camera and store in sdCard and in FILE
+     * for future upload of asset Image
+     */
     private View.OnClickListener getAssetImage = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
-
+            // Asset Image name
             currentpicname = "ASSET_" + assetCodeTx.getText().toString() + "_" + new SimpleDateFormat("yyyyMMddHHmmss").format(new Date()) + ".jpg";
             temppath = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES), "Asset");
             if (!temppath.exists())
                 temppath.mkdirs();
             fimg = new File(temppath, currentpicname);
             Log.i("Path", fimg.getAbsolutePath());
+            //Image cature intent with created filepath as Extra
             if (fimg != null) {
                 Intent i = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
                 i.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(fimg));
@@ -213,11 +286,23 @@ public class AssetTracking extends Activity implements TextWatcher, LocationList
         }
     };
 
+    /**
+     * Scan asset using barcode scanner
+     */
+    private View.OnClickListener scanAssetsCode = new View.OnClickListener() {
+        @Override
+        public void onClick(View view) {
+            IntentIntegrator integrator = new IntentIntegrator(AssetTracking.this);
+            integrator.initiateScan();
+        }
+    };
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == GET_IMG_REQ) {
             if (resultCode == RESULT_OK) {
                 if (fimg != null) {
+                    // Image capture is successful & save in mediaStore, set image to ImageView
                     astImage = encodeImgFile(fimg);
                     MediaStore.Images.Media.insertImage(getContentResolver(), astImage, currentpicname, assetCodeTx.getText().toString());
                     assetpic.setImageBitmap(astImage);
@@ -228,8 +313,11 @@ public class AssetTracking extends Activity implements TextWatcher, LocationList
                 // Image capture failed, advise user
             }
         }
+
+        // IntentResult for barcode scanner
         IntentResult intentResult = IntentIntegrator.parseActivityResult(requestCode, resultCode, data);
         if (intentResult != null) {
+            //Scan successful
             Log.d("Scan Result", intentResult.toString());
             assetCodeTx.setText(intentResult.getContents());
             getAssetDetails(intentResult.getContents());
@@ -239,6 +327,70 @@ public class AssetTracking extends Activity implements TextWatcher, LocationList
 
     }
 
+    /**
+     * Reduce the file quality by time four
+     *
+     * @param imagefile
+     * @return Bitmap
+     */
+    private Bitmap encodeImgFile(File imagefile) {
+        BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inJustDecodeBounds = true;
+        BitmapFactory.decodeFile(imagefile.getAbsolutePath(), options);
+        options.inSampleSize = 4;
+        options.inJustDecodeBounds = false;
+        Log.i("In", "encodeImgFile Method");
+        return BitmapFactory.decodeFile(imagefile.getAbsolutePath(), options);
+    }
+    //</editor-fold>
+
+
+    private CompoundButton.OnCheckedChangeListener checkforLocation = new CompoundButton.OnCheckedChangeListener() {
+        @Override
+        public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+            Log.d(TAG, String.valueOf(b));
+            if (!b) {
+                Log.d(TAG, "Checked false");
+                stopLocationUpdates();
+                assetlatitute = 0.0;
+                assetlogitude = 0.0;
+            } else {
+                Log.d(TAG, "Checked true");
+                startLocationUpdates();
+            }
+        }
+    };
+
+    // Confirm button onClickListener
+    private View.OnClickListener confirmAsset = new View.OnClickListener() {
+        @Override
+        public void onClick(View view) {
+            if (isassetpresent) {
+                if (!assetCodeTx.getText().toString().equals("") && !assetdateTx.getText().toString().equals("")) {
+                    uploadDatatoServer();
+                    Log.d(TAG, "assetlatitute:" + assetlatitute + "long:" + assetlogitude);
+                } else {
+                    if (assetCodeTx.getText().toString().equals(""))
+                        assetCodeTx.setError("Scan asset before submitting");
+                    if (assetdateTx.getText().toString().equals(""))
+                        assetdateTx.setError("Select the date");
+                }
+            } else {
+                DialogBoxDisplay.msgBox(AssetTracking.this, "Asset is not present so cannot submit");
+            }
+        }
+    };
+
+//region get Asset Details
+
+    /**
+     * Get asset details for the scanned code
+     * <p>
+     * The anonymous async task i/p asset code gets asset imformation from server
+     * </p>
+     *
+     * @param assetCode
+     */
     private void getAssetDetails(String assetCode) {
         new AsyncTask<String, Void, String>() {
             @Override
@@ -293,7 +445,7 @@ public class AssetTracking extends Activity implements TextWatcher, LocationList
                                 connection.getInputStream(), "utf-8"));
                         String line = null;
                         while ((line = br.readLine()) != null) {
-                            sb.append(line + "\n");
+                            sb.append(line).append("\n");
                         }
                         br.close();
                         JSONObject resObject = new JSONObject(sb.toString());
@@ -323,60 +475,15 @@ public class AssetTracking extends Activity implements TextWatcher, LocationList
             }
         }.execute(assetCode);
     }
+//endregion
 
-    private Bitmap encodeImgFile(File file) {
-        BitmapFactory.Options options = new BitmapFactory.Options();
-        options.inJustDecodeBounds = true;
-        BitmapFactory.decodeFile(file.getAbsolutePath(), options);
-        options.inSampleSize = 4;
-        options.inJustDecodeBounds = false;
-        Log.i("In", "encodeImgFile Method");
-        return BitmapFactory.decodeFile(file.getAbsolutePath(), options);
-    }
 
-    private CompoundButton.OnCheckedChangeListener checkforLocation = new CompoundButton.OnCheckedChangeListener() {
-        @Override
-        public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-            Log.d(TAG, String.valueOf(b));
-            if (!b) {
-                Log.d(TAG, "Checked false");
-                stopLocationUpdates();
-                assetlatitute = 0.0;
-                assetlogitude = 0.0;
-            } else {
-                Log.d(TAG, "Checked true");
-                startLocationUpdates();
-            }
-        }
-    };
+    //<editor-fold desc="Network Upload Task">
 
-    private View.OnClickListener scanAssetsCode = new View.OnClickListener() {
-        @Override
-        public void onClick(View view) {
-            IntentIntegrator integrator = new IntentIntegrator(AssetTracking.this);
-            integrator.initiateScan();
-        }
-    };
-
-    private View.OnClickListener confirmAsset = new View.OnClickListener() {
-        @Override
-        public void onClick(View view) {
-            if (isassetpresent) {
-                if (!assetCodeTx.getText().toString().equals("") && !assetdateTx.getText().toString().equals("")) {
-                    uploadDatatoServer();
-                    Log.d(TAG, "assetlatitute:" + assetlatitute + "long:" + assetlogitude);
-                } else {
-                    if (assetCodeTx.getText().toString().equals(""))
-                        assetCodeTx.setError("Scan asset before submitting");
-                    if (assetdateTx.getText().toString().equals(""))
-                        assetdateTx.setError("Select the date");
-                }
-            } else {
-                DialogBoxDisplay.msgBox(AssetTracking.this, "Asset is not present so cannot submit");
-            }
-        }
-    };
-
+    /**
+     * Async task to uplaod the asset information to server
+     * upon complete onPostExecute the image is uploded at sepreate Async
+     */
     private void uploadDatatoServer() {
         new AsyncTask<Void, Void, String>() {
             @Override
@@ -435,6 +542,8 @@ public class AssetTracking extends Activity implements TextWatcher, LocationList
                     dataPram.put("gps", assetlatitute + "," + assetlogitude);
                     dataPram.put("location", locationAddress);
                     dataPram.put("timezone", TimeZone.getDefault().getID());
+                    if (fimg != null)
+                        dataPram.put("filename", fimg.getName());
                     Log.d(TAG, "[JSON DATA]--" + dataPram.toString());
                     DataOutputStream outputStream = new DataOutputStream(connection.getOutputStream());
                     outputStream.writeBytes(dataPram.toString());
@@ -447,7 +556,7 @@ public class AssetTracking extends Activity implements TextWatcher, LocationList
                                 connection.getInputStream(), "utf-8"));
                         String line = null;
                         while ((line = br.readLine()) != null) {
-                            sb.append(line + "\n");
+                            sb.append(line).append("\n");
                         }
                         br.close();
                         JSONObject resObject = new JSONObject(sb.toString());
@@ -474,7 +583,11 @@ public class AssetTracking extends Activity implements TextWatcher, LocationList
         }.execute();
     }
 
-
+    /**
+     * Upload asset's image to server Async
+     *
+     * @param sourceFileUri
+     */
     private void uploadImagetoServer(String sourceFileUri) {
         new AsyncTask<Void, String, Integer>() {
 
@@ -552,7 +665,7 @@ public class AssetTracking extends Activity implements TextWatcher, LocationList
                     dos.writeBytes("\r\n");
                     dos.writeBytes(delimiter + boundary + delimiter + "\r\n");
                     serverResponseCode = con.getResponseCode();
-                    String serverResponseMessage = con.getResponseMessage();
+
                     fileInputStream.close();
                     dos.flush();
                     dos.close();
@@ -564,13 +677,15 @@ public class AssetTracking extends Activity implements TextWatcher, LocationList
             }
         }.execute();
     }
+    //</editor-fold>
 
 
+    //region GetLocationTask
     @Override
     public void onLocationChanged(Location location) {
         assetlatitute = location.getLatitude();
         assetlogitude = location.getLongitude();
-        Log.d(TAG,"[LAT,LONG]--[" + assetlatitute + "," + assetlogitude + "]");
+        Log.d(TAG, "[LAT,LONG]--[" + assetlatitute + "," + assetlogitude + "]");
         startAddressServiceIntent();
     }
 
@@ -593,6 +708,11 @@ public class AssetTracking extends Activity implements TextWatcher, LocationList
 
     }
 
+    /**
+     * Start Address intent service
+     *
+     * @see GetaddressService
+     */
     private void startAddressServiceIntent() {
         Intent getAddrIntent = new Intent(this, GetaddressService.class);
         getAddrIntent.putExtra(GetaddressService.PRAM_LAT, assetlatitute);
@@ -600,22 +720,30 @@ public class AssetTracking extends Activity implements TextWatcher, LocationList
         startService(getAddrIntent);
     }
 
-    protected void startLocationUpdates() {
+    private void startLocationUpdates() {
         Log.d(TAG, "On Start Location Update");
         LocationServices.FusedLocationApi.requestLocationUpdates(
                 mGoogleApiClient, mLocationRequest, this);
     }
 
-    protected void createLocationRequest() {
+    /**
+     * Setting location request interval time
+     */
+    private void createLocationRequest() {
         mLocationRequest = new LocationRequest();
         mLocationRequest.setInterval(10000);
         mLocationRequest.setFastestInterval(5000);
         mLocationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
     }
 
-    protected void stopLocationUpdates() {
+    /**
+     * Kill google api client
+     */
+    private void stopLocationUpdates() {
         LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
     }
+
+    //endregion
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -623,6 +751,7 @@ public class AssetTracking extends Activity implements TextWatcher, LocationList
         return true;
     }
 
+    // On back pressed exit application
     @Override
     public void onBackPressed() {
         super.onBackPressed();
@@ -636,24 +765,49 @@ public class AssetTracking extends Activity implements TextWatcher, LocationList
     public boolean onOptionsItemSelected(MenuItem item) {
 
         int id = item.getItemId();
+        switch (id) {
+            case R.id.logout: {
+                if (sp == null)
+                    sp = getSharedPreferences(Login.USER_SP, MODE_PRIVATE);
+                SharedPreferences.Editor edit = sp.edit();
+                edit.clear();
+                edit.commit();
+                Intent i = new Intent(this, Login.class);
+                startActivity(i);
+                this.finish();
+                return true;
 
+            }
+            case R.id.CConfig: {
+                if (sharedPreferencesDB == null)
+                    sharedPreferencesDB = getSharedPreferences(Login.DB_CONFIG, MODE_PRIVATE);
+                if (sharedPreferencesDB.contains(Login.DBSTRING)) {
+                    CheckDataSourceConnection c = new CheckDataSourceConnection(this, sharedPreferencesDB.getString(Login.DBSTRING, ""), false);
+                    c.check();
+                } else {
+                    Toast.makeText(this, "There is no configuration setting,\nClear configuration and re-enter ", Toast.LENGTH_LONG).show();
+                }
+                return true;
+            }
+            case R.id.RConfig: {
+                if (sp == null)
+                    sp = getSharedPreferences(Login.USER_SP, MODE_PRIVATE);
+                if (sharedPreferencesDB == null)
+                    sharedPreferencesDB = getSharedPreferences(Login.DB_CONFIG, MODE_PRIVATE);
+                SharedPreferences.Editor edit = sp.edit();
+                edit.clear();
+                edit.commit();
+                edit = sharedPreferencesDB.edit();
+                edit.clear();
+                edit.commit();
+                Intent i = new Intent(this, Login.class);
+                startActivity(i);
+                this.finish();
+                return true;
 
-        if (id == R.id.viewallasset) {
-            Intent allassets = new Intent(this, AllAssetTracking.class);
-            startActivity(allassets);
-            return true;
+            }
         }
-        if (id == R.id.logout) {
-            if (sp == null)
-                sp = getSharedPreferences(Login.USER_SP, MODE_PRIVATE);
-            SharedPreferences.Editor edit = sp.edit();
-            edit.clear();
-            edit.commit();
-            Intent i = new Intent(this, Login.class);
-            startActivity(i);
-            this.finish();
-            return true;
-        }
+
         return super.onOptionsItemSelected(item);
     }
 
@@ -676,7 +830,7 @@ public class AssetTracking extends Activity implements TextWatcher, LocationList
 
     @Override
     public void afterTextChanged(Editable editable) {
-        String text = editable.toString();
+
         if (editable == assetCodeTx.getEditableText()) {
             if (!assetCodeTx.getText().toString().equals(""))
                 assetCodeTx.setError(null);
@@ -687,7 +841,9 @@ public class AssetTracking extends Activity implements TextWatcher, LocationList
         }
     }
 
-
+    /**
+     * Receiver class to receive the address of location from intent service
+     */
     public class ResponseReceiver extends BroadcastReceiver {
         public static final String ACTION_RESP = "com.htfs.intent.action.MESSAGE_PROCESSED";
 
@@ -702,6 +858,9 @@ public class AssetTracking extends Activity implements TextWatcher, LocationList
         }
     }
 
+    /**
+     * Clear all UI field after a successful update
+     */
     private void clearAll() {
         assetCodeTx.setText("");
         assetName.setText("");
@@ -709,6 +868,7 @@ public class AssetTracking extends Activity implements TextWatcher, LocationList
         assetCommnetTx.setText("");
         assetpic.setImageBitmap(null);
         astImage = null;
+        fimg = null;
     }
 
 }

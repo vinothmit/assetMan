@@ -6,14 +6,16 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.provider.Settings;
 
-import com.htfs.assettracking.Login;
-
 /**
- * Created by Vinoth on 21-05-2015.
+ * Created for AssetTracking with search on 2015.
  */
 public class DialogBoxDisplay {
 
-
+    /**
+     * AlertDialog with message "Open Location service to enable GPS?"
+     *
+     * @param context
+     */
     public static void showGps(final Context context) {
         AlertDialog.Builder builder;
         builder = new AlertDialog.Builder(context);
@@ -37,41 +39,61 @@ public class DialogBoxDisplay {
         dialog.show();
     }
 
+    /**
+     * AlertDialog with message "Username/Password is wrong"
+     *
+     * @param context
+     */
     public static void wrongUser(final Context context) {
-        AlertDialog.Builder builder;
-        builder = new AlertDialog.Builder(context);
-        builder.setMessage("Username/Password is wrong")
-                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        dialogInterface.dismiss();
-                    }
-                });
-
-        AlertDialog dialog = builder.create();
-        dialog.show();
+        msgBox(context, "Username/Password is wrong");
     }
 
+    /**
+     * AlertDialog with message "Check your internet Connection"
+     * or
+     * AlertDialog with message "There is problem with connection,Try Again Later!!!"
+     *
+     * @param context
+     */
     public static void noInte(final Context context) {
-        AlertDialog.Builder builder;
+
         String msg;
-        builder = new AlertDialog.Builder(context);
+
         if (!CheckInternetConnection.checkConnection(context))
             msg = "Check your internet Connection";
         else
             msg = "There is problem with connection,Try Again Later!!!";
-        builder.setMessage(msg)
-                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        dialogInterface.dismiss();
-                    }
-                });
 
-        AlertDialog dialog = builder.create();
-        dialog.show();
+        msgBox(context, msg);
     }
-    public  static void msgBox(final  Context context,String msg){
+
+    /**
+     * AlertDialog with message "Check your internet Connection"
+     * or
+     * AlertDialog with message "Connection error. Please check the configuration setting"
+     *
+     * @param context
+     */
+    public static void checkConnect(final Context context) {
+
+        String msg;
+
+        if (!CheckInternetConnection.checkConnection(context))
+            msg = "Check your internet Connection";
+        else
+            msg = "Connection error. Please check the configuration setting";
+
+        msgBox(context, msg);
+    }
+
+    /**
+     * General alert dialog box
+     * with positive button
+     *
+     * @param context call activity's context
+     * @param msg     the message to be displayed
+     */
+    public static void msgBox(final Context context, String msg) {
         AlertDialog.Builder builder;
 
         builder = new AlertDialog.Builder(context);

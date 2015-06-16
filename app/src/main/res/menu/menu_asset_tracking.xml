@@ -3,16 +3,21 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="com.htfs.assettracking.AssetTracking">
     <item
-        android:id="@+id/viewallasset"
-        android:orderInCategory="100"
-        android:title="@string/viewallasset"
-        app:showAsAction="always"
-        android:showAsAction="always"
-        />
-    <item
         android:id="@+id/logout"
         android:orderInCategory="101"
         android:title="Logout"
+        app:showAsAction="never"
+        />
+    <item
+        android:id="@+id/CConfig"
+        android:orderInCategory="102"
+        android:title="Test configuration"
+        app:showAsAction="never"
+        />
+    <item
+        android:id="@+id/RConfig"
+        android:orderInCategory="102"
+        android:title="Remove configuration"
         app:showAsAction="never"
         />
 </menu>

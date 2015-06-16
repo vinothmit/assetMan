@@ -94,14 +94,7 @@
             android:padding="10dp"
             android:text="@string/login" />
 
-        <Button
-            android:id="@+id/button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/astloginauth"
-            android:layout_centerHorizontal="true"
-            android:layout_marginTop="10dp"
-            android:text="GoTo next Page" />
+
     </RelativeLayout>
 
 

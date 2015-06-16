@@ -21,6 +21,8 @@
     <string name="title_activity_searcj">Search Asset</string>
     <string name="app_lable">Serach Asset</string>
     <string name="searchHint">Search by Asset Name</string>
+    <string name="title_activity_configuration">Configuration</string>
+    <string name="testConnection">Test Connection</string>
 
 
 </resources>

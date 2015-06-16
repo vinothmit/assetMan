@@ -165,7 +165,8 @@
             android:elevation="8dp"
             android:text="@string/takepic"
             android:textColor="@color/darkblue"
-            android:translationZ="8dp" />
+            android:translationZ="8dp"
+            tools:ignore="ButtonStyle,UnusedAttribute" />
 
         <Button
             android:id="@+id/astconfirm"
@@ -176,6 +177,7 @@
             android:elevation="8dp"
             android:text="@string/confirm"
             android:textColor="#ffffff"
-            android:translationZ="8dp" />
+            android:translationZ="8dp"
+            tools:ignore="ButtonStyle,UnusedAttribute" />
     </LinearLayout>
 </RelativeLayout>
